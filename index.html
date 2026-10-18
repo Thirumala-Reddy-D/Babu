@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .calculator {
+            background-color: #1e222b;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            width: 320px;
+        }
+
+        .display {
+            width: 100%;
+            height: 70px;
+            background-color: #282c34;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 2rem;
+            text-align: right;
+            padding: 10px 15px;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 18px;
+            font-size: 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.1s ease;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .number {
+            background-color: #3e4451;
+            color: #ffffff;
+        }
+
+        .number:hover {
+            background-color: #4b5263;
+        }
+
+        .operator {
+            background-color: #98c379;
+            color: #1e222b;
+        }
+
+        .operator:hover {
+            background-color: #a3cf81;
+        }
+
+        .clear {
+            background-color: #e06c75;
+            color: #ffffff;
+            grid-column: span 2;
+        }
+
+        .clear:hover {
+            background-color: #e68188;
+        }
+
+        .equal {
+            background-color: #61afef;
+            color: #ffffff;
+            grid-column: span 2;
+        }
+
+        .equal:hover {
+            background-color: #72baef;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <input type="text" class="display" id="display" readonly value="0">
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="operator" onclick="appendOperator('/')">/</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+            
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+            
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+            
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            <button class="equal" onclick="calculate()">=</button>
+            
+            <button class="number" style="grid-column: span 2;" onclick="appendNumber('0')">0</button>
+            <button class="number" onclick="appendNumber('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let shouldResetDisplay = false;
+
+        function appendNumber(number) {
+            if (currentInput === '0' && number !== '.' || shouldResetDisplay) {
+                currentInput = number;
+                shouldResetDisplay = false;
+            } else {
+                if (number === '.' && currentInput.includes('.')) return;
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operation !== null) {
+                calculate();
+            }
+            previousInput = currentInput;
+            operation = op;
+            shouldResetDisplay = true;
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (operation === null || shouldResetDisplay) return;
+            
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        result = 'Error';
+                    } else {
+                        result = prev / current;
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            // Handle decimal precision issues (e.g., 0.1 + 0.2)
+            if (typeof result === 'number') {
+                result = Math.round(result * 1e9) / 1e9;
+            }
+
+            currentInput = result.toString();
+            operation = null;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.value = currentInput;
+        }
+    </script>
+</body>
+</html>
